@@ -8,6 +8,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import sr.unasat.financeapp.R;
 import sr.unasat.financeapp.dao.SqliteHelper;
@@ -16,18 +28,19 @@ import sr.unasat.financeapp.entities.User;
 public class LoginActivity extends AppCompatActivity {
 
     // Declaration EditTexts
-    EditText editTextEmail;
-    EditText editTextPassword;
+    private EditText editTextEmail, editTextPassword;
 
     // Declaration TextInputLayout
-    TextInputLayout textInputLayoutEmail;
-    TextInputLayout textInputLayoutPassword;
+    TextInputLayout textInputLayoutEmail, textInputLayoutPassword;
 
     // Declaration Buttons
     Button buttonLogin;
 
     // Declaration SqliteHelper
     SqliteHelper sqliteHelper;
+
+    //TODO: insert rest api link
+    String URL = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,27 +58,56 @@ public class LoginActivity extends AppCompatActivity {
                 //Check user input is correct or not
                 if (validate()) {
 
-                    //Get values from EditText fields
-                    String Email = editTextEmail.getText().toString();
-                    String Password = editTextPassword.getText().toString();
+//                    //Get values from EditText fields
+//                    String Email = editTextEmail.getText().toString();
+//                    String Password = editTextPassword.getText().toString();
+//
+//                    //Authenticate user
+//                    User currentUser = sqliteHelper.Authenticate(new User(null, null, Email, Password));
+//
+//                    //Check Authentication is successful or not
+//                    if (currentUser != null) {
+//                        Snackbar.make(buttonLogin, "Successfully Logged in!", Snackbar.LENGTH_LONG).show();
+//
+//                        //User Logged in Successfully Launch You home screen activity
+//                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+//                        startActivity(intent);
+//                        finish();
+//                    } else {
+//
+//                        //User Logged in Failed
+//                        Snackbar.make(buttonLogin, "Failed to log in , please try again", Snackbar.LENGTH_LONG).show();
+//
+//                    }
 
-                    //Authenticate user
-                    User currentUser = sqliteHelper.Authenticate(new User(null, null, Email, Password));
+                    StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
+                        @Override
+                        public void onResponse(String s) {
+                            if(s.equals("true")){
+                                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(LoginActivity.this,DashboardActivity.class));
+                            }
+                            else{
+                                Toast.makeText(LoginActivity.this, "Incorrect Details", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    },new Response.ErrorListener(){
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            Toast.makeText(LoginActivity.this, "Some error occurred -> "+volleyError, Toast.LENGTH_LONG).show();;
+                        }
+                    }) {
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("email", editTextEmail.getText().toString());
+                            parameters.put("password", editTextPassword.getText().toString());
+                            return parameters;
+                        }
+                    };
 
-                    //Check Authentication is successful or not
-                    if (currentUser != null) {
-                        Snackbar.make(buttonLogin, "Successfully Logged in!", Snackbar.LENGTH_LONG).show();
-
-                        //User Logged in Successfully Launch You home screen activity
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-
-                        //User Logged in Failed
-                        Snackbar.make(buttonLogin, "Failed to log in , please try again", Snackbar.LENGTH_LONG).show();
-
-                    }
+                    RequestQueue rQueue = Volley.newRequestQueue(LoginActivity.this);
+                    rQueue.add(request);
                 }
             }
         });
