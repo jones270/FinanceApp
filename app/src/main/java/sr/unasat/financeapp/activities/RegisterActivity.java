@@ -1,71 +1,109 @@
 package sr.unasat.financeapp.activities;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout; // add dependency com.android.support:design
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import sr.unasat.financeapp.R;
 import sr.unasat.financeapp.dao.SqliteHelper;
-import sr.unasat.financeapp.entities.User;
 
 public class RegisterActivity extends AppCompatActivity {
 
     //Declaration EditTexts
-    EditText editTextUserName;
-    EditText editTextEmail;
-    EditText editTextPassword;
+    private EditText editTextFullName, editTextEmail, editTextPassword;
 
     //Declaration TextInputLayout
-    TextInputLayout textInputLayoutUserName;
-    TextInputLayout textInputLayoutEmail;
-    TextInputLayout textInputLayoutPassword;
+    private TextInputLayout textInputLayoutUserName, textInputLayoutEmail, textInputLayoutPassword;
 
     //Declaration Button
-    Button buttonRegister;
+    private Button buttonRegister;
 
     //Declaration SqliteHelper
-    SqliteHelper sqliteHelper;
+    private SqliteHelper sqliteHelper;
+
+    // TO-DO rest service url plaatsen
+    private String URL = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        sqliteHelper = new SqliteHelper(this);
+
         initTextViewLogin();
         initViews();
+
+
+        sqliteHelper = new SqliteHelper(this);
+
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (validate()) {
-                    String UserName = editTextUserName.getText().toString();
-                    String Email = editTextEmail.getText().toString();
-                    String Password = editTextPassword.getText().toString();
+//                    String UserName = editTextFullName.getText().toString();
+//                    String Email = editTextEmail.getText().toString();
+//                    String Password = editTextPassword.getText().toString();
+//
+//                    //Check in the database is there any user associated with  this email
+//                    if (!sqliteHelper.isEmailExists(Email)) {
+//
+//                        //Email does not exist now add new user to database
+//                        sqliteHelper.addUser(new User(null, UserName, Email, Password));
+//                        Snackbar.make(buttonRegister, "User created successfully! Please Login ", Snackbar.LENGTH_LONG).show();
+//                        new Handler().postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                finish();
+//                            }
+//                        }, Snackbar.LENGTH_LONG);
+//                    }else {
+//
+//                        //Email exists with email input provided so show error user already exist
+//                        Snackbar.make(buttonRegister, "User already exists with same email ", Snackbar.LENGTH_LONG).show();
+//                    }
 
-                    //Check in the database is there any user associated with  this email
-                    if (!sqliteHelper.isEmailExists(Email)) {
-
-                        //Email does not exist now add new user to database
-                        sqliteHelper.addUser(new User(null, UserName, Email, Password));
-                        Snackbar.make(buttonRegister, "User created successfully! Please Login ", Snackbar.LENGTH_LONG).show();
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                finish();
+                    StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String s) {
+                            if (s.equals("true")) {
+                                Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "Can't Register", Toast.LENGTH_LONG).show();
                             }
-                        }, Snackbar.LENGTH_LONG);
-                    }else {
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            Toast.makeText(RegisterActivity.this, "Some error occurred -> " + volleyError, Toast.LENGTH_LONG).show();
+                        }
+                    }) {
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            Map<String, String> parameters = new HashMap<String, String>();
+                            parameters.put("fullname", editTextFullName.getText().toString());
+                            parameters.put("email", editTextEmail.getText().toString());
+                            parameters.put("password", editTextPassword.getText().toString());
+                            return parameters;
+                        }
+                    };
 
-                        //Email exists with email input provided so show error user already exist
-                        Snackbar.make(buttonRegister, "User already exists with same email ", Snackbar.LENGTH_LONG).show();
-                    }
-
-
+                    RequestQueue rQueue = Volley.newRequestQueue(RegisterActivity.this);
+                    rQueue.add(request);
                 }
             }
         });
@@ -73,7 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     //this method used to set Login TextView click event
     private void initTextViewLogin() {
-        TextView textViewLogin = (TextView) findViewById(R.id.textViewLogin);
+        TextView textViewLogin = findViewById(R.id.textViewLogin);
         textViewLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,10 +124,10 @@ public class RegisterActivity extends AppCompatActivity {
     private void initViews() {
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
-        editTextUserName = (EditText) findViewById(R.id.editTextUserName);
+        editTextFullName = (EditText) findViewById(R.id.editTextFullName);
         textInputLayoutEmail = (TextInputLayout) findViewById(R.id.textInputLayoutEmail);
         textInputLayoutPassword = (TextInputLayout) findViewById(R.id.textInputLayoutPassword);
-        textInputLayoutUserName = (TextInputLayout) findViewById(R.id.textInputLayoutUserName);
+        textInputLayoutUserName = (TextInputLayout) findViewById(R.id.textInputLayoutFullName);
         buttonRegister = (Button) findViewById(R.id.buttonRegister);
 
     }
@@ -99,7 +137,7 @@ public class RegisterActivity extends AppCompatActivity {
         boolean valid = false;
 
         //Get values from EditText fields
-        String UserName = editTextUserName.getText().toString();
+        String UserName = editTextFullName.getText().toString();
         String Email = editTextEmail.getText().toString();
         String Password = editTextPassword.getText().toString();
 
