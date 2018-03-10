@@ -10,4 +10,6 @@
     <string name="back_to_login">Back to Login</string>
     <string name="title_activity_test">TestActivity</string>
     <string name="todo">TODO</string>
+    <string name="logout">logout</string>
+    <string name="profile">profile</string>
 </resources>

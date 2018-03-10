@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                         public void onResponse(String s) {
                             if(s.equals("true")){
                                 Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                                startActivity(new Intent(LoginActivity.this,DashboardActivity.class));
+                                startActivity(new Intent(LoginActivity.this,DashBoard.class));
                             }
                             else{
                                 Toast.makeText(LoginActivity.this, "Incorrect Details", Toast.LENGTH_LONG).show();

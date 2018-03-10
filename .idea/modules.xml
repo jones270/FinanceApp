@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FinanceApp.iml" filepath="$PROJECT_DIR$/FinanceApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/FinanceApp.iml" filepath="$PROJECT_DIR$/.idea/FinanceApp.iml" />
+      <module fileurl="file://C:\Users\Mitchell Jones\Favorites\FinanceApp\FinanceApp.iml" filepath="C:\Users\Mitchell Jones\Favorites\FinanceApp\FinanceApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
